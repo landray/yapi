@@ -6,8 +6,8 @@ const commons = require('./utils/commons');
 yapi.commons = commons;
 const dbModule = require('./utils/db.js');
 yapi.connect = dbModule.connect();
-const mockServer = require('./middleware/mockServer.js');
-const plugins = require('./plugin.js');
+const mockRouter = require('./middleware/mockRouter.js');
+require('./plugin.js');
 const websockify = require('koa-websocket');
 const websocket = require('./websocket.js');
 
@@ -24,8 +24,16 @@ app.proxy = true;
 yapi.app = app;
 
 // app.use(bodyParser({multipart: true}));
-app.use(koaBody({ multipart: true, jsonLimit: '2mb', formLimit: '1mb', textLimit: '1mb' }));
-app.use(mockServer);
+app.use(
+  koaBody({
+    multipart: true,
+    jsonLimit: '2mb',
+    formLimit: '1mb',
+    textLimit: '1mb'
+  })
+);
+app.use(mockRouter.routes());
+app.use(mockRouter.allowedMethods());
 app.use(router.routes());
 app.use(router.allowedMethods());
 
@@ -43,7 +51,11 @@ app.use(async (ctx, next) => {
 app.use(async (ctx, next) => {
   if (ctx.path.indexOf('/prd') === 0) {
     ctx.set('Cache-Control', 'max-age=8640000000');
-    if (yapi.commons.fileExist(yapi.path.join(yapi.WEBROOT, 'static', ctx.path + '.gz'))) {
+    if (
+      yapi.commons.fileExist(
+        yapi.path.join(yapi.WEBROOT, 'static', ctx.path + '.gz')
+      )
+    ) {
       ctx.set('Content-Encoding', 'gzip');
       ctx.path = ctx.path + '.gz';
     }
@@ -51,7 +63,12 @@ app.use(async (ctx, next) => {
   await next();
 });
 
-app.use(koaStatic(yapi.path.join(yapi.WEBROOT, 'static'), { index: indexFile, gzip: true }));
+app.use(
+  koaStatic(yapi.path.join(yapi.WEBROOT, 'static'), {
+    index: indexFile,
+    gzip: true
+  })
+);
 
 app.listen(yapi.WEBCONFIG.port);
 commons.log(

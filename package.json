@@ -11,6 +11,7 @@
     "dev": "npm run dev-server & npm run dev-client",
     "start": " node server/app.js",
     "test": "ava",
+    "lint": "eslint ./server",
     "build-client": "NODE_ENV=production ykit pack -m"
   },
   "scripts-info": {
@@ -70,6 +71,7 @@
     "nodemailer": "4.0.1",
     "os": "0.1.1",
     "request": "2.81.0",
+    "restc": "^0.3.2",
     "sha.js": "2.4.9",
     "sha1": "1.1.1",
     "swagger-client": "^3.5.1",

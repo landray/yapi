@@ -5,7 +5,9 @@ const mockExtra = require('../../common/mock-extra.js');
 const { schemaValidator } = require('../../common/utils.js');
 const _ = require('underscore');
 const Mock = require('mockjs');
-const variable = require('../../client/constants/variable.js')
+
+const variable = require('../../client/constants/variable.js');
+
 /**
  *
  * @param {*} apiPath /user/tom
@@ -75,8 +77,14 @@ function parseCookie(str) {
 function handleCorsRequest(ctx) {
   let header = ctx.request.header;
   ctx.set('Access-Control-Allow-Origin', header.origin);
-  ctx.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, HEADER, PATCH, OPTIONS');
-  ctx.set('Access-Control-Allow-Headers', header['access-control-request-headers']);
+  ctx.set(
+    'Access-Control-Allow-Methods',
+    'GET, POST, PUT, DELETE, HEADER, PATCH, OPTIONS'
+  );
+  ctx.set(
+    'Access-Control-Allow-Headers',
+    header['access-control-request-headers']
+  );
   ctx.set('Access-Control-Allow-Credentials', true);
   ctx.set('Access-Control-Max-Age', 1728000);
   ctx.body = 'ok';
@@ -99,7 +107,10 @@ function mockValidator(interfaceData, ctx) {
     }
   }
   // form 表单判断
-  if (variable.HTTP_METHOD[method].request_body && interfaceData.req_body_type === 'form') {
+  if (
+    variable.HTTP_METHOD[method].request_body &&
+    interfaceData.req_body_type === 'form'
+  ) {
     for (j = 0, len = interfaceData.req_body_form.length; j < len; j++) {
       let curForm = interfaceData.req_body_form[j];
       if (curForm && typeof curForm === 'object' && curForm.required === '1') {
@@ -117,15 +128,25 @@ function mockValidator(interfaceData, ctx) {
   }
   let validResult;
   // json schema 判断
-  if (variable.HTTP_METHOD[method].request_body  && interfaceData.req_body_type === 'json' && interfaceData.req_body_is_json_schema === true) {
+  if (
+    variable.HTTP_METHOD[method].request_body &&
+    interfaceData.req_body_type === 'json' &&
+    interfaceData.req_body_is_json_schema === true
+  ) {
     const schema = yapi.commons.json_parse(interfaceData.req_body_other);
     const params = yapi.commons.json_parse(ctx.request.body);
     validResult = schemaValidator(schema, params);
   }
   if (noRequiredArr.length > 0 || (validResult && !validResult.valid)) {
     let message = `错误信息：`;
-    message += noRequiredArr.length > 0 ? `缺少必须字段 ${noRequiredArr.join(',')}  ` : '';
-    message += validResult && !validResult.valid ? `shema 验证请求参数 ${validResult.message}` : '';
+    message +=
+      noRequiredArr.length > 0
+        ? `缺少必须字段 ${noRequiredArr.join(',')}  `
+        : '';
+    message +=
+      validResult && !validResult.valid
+        ? `shema 验证请求参数 ${validResult.message}`
+        : '';
 
     return {
       valid: false,
@@ -136,17 +157,17 @@ function mockValidator(interfaceData, ctx) {
   return { valid: true };
 }
 
-module.exports = async (ctx, next) => {
+module.exports = async ctx => {
   // no used variable 'hostname' & 'config'
   // let hostname = ctx.hostname;
   // let config = yapi.WEBCONFIG;
   let path = ctx.path;
   let header = ctx.request.header;
 
-  if (path.indexOf('/mock/') !== 0) {
-    if (next) await next();
-    return true;
-  }
+  // if (path.indexOf('/mock/') !== 0) {
+  //   if (next) await next()
+  //   return true
+  // }
 
   let paths = path.split('/');
   let projectId = paths[2];
@@ -179,11 +200,21 @@ module.exports = async (ctx, next) => {
 
   try {
     newpath = path.substr(project.basepath.length);
-    interfaceData = await interfaceInst.getByPath(project._id, newpath, ctx.method);
-    let queryPathInterfaceData = await interfaceInst.getByQueryPath(project._id, newpath, ctx.method);
+    interfaceData = await interfaceInst.getByPath(
+      project._id,
+      newpath,
+      ctx.method
+    );
+    let queryPathInterfaceData = await interfaceInst.getByQueryPath(
+      project._id,
+      newpath,
+      ctx.method
+    );
     //处理query_path情况  url 中有 ?params=xxx
-    if (!interfaceData || interfaceData.length != queryPathInterfaceData.length) {
-
+    if (
+      !interfaceData ||
+      interfaceData.length != queryPathInterfaceData.length
+    ) {
       let i,
         l,
         j,
@@ -213,7 +244,6 @@ module.exports = async (ctx, next) => {
         // if (i === l - 1) {
         //   interfaceData = [];
         // }
-
       }
     }
 
@@ -231,7 +261,10 @@ module.exports = async (ctx, next) => {
 
       if (!findInterface) {
         //非正常跨域预检请求回应
-        if (ctx.method === 'OPTIONS' && ctx.request.header['access-control-request-method']) {
+        if (
+          ctx.method === 'OPTIONS' &&
+          ctx.request.header['access-control-request-method']
+        ) {
           return handleCorsRequest(ctx);
         }
 
@@ -247,7 +280,11 @@ module.exports = async (ctx, next) => {
     }
 
     if (interfaceData.length > 1) {
-      return (ctx.body = yapi.commons.resReturn(null, 405, '存在多个api，请检查数据库'));
+      return (ctx.body = yapi.commons.resReturn(
+        null,
+        405,
+        '存在多个api，请检查数据库'
+      ));
     } else {
       interfaceData = interfaceData[0];
     }
@@ -281,7 +318,8 @@ module.exports = async (ctx, next) => {
 
           if (
             _.isString(ctx.request.header['content-type']) &&
-            ctx.request.header['content-type'].indexOf('multipart/form-data') > -1
+            ctx.request.header['content-type'].indexOf('multipart/form-data') >
+              -1
           ) {
             ctx.request.body = ctx.request.body.fields;
           }
@@ -331,7 +369,10 @@ module.exports = async (ctx, next) => {
         for (let i in context.resHeader) {
           let cookie;
           if (i === 'Set-Cookie') {
-            if (context.resHeader[i] && typeof context.resHeader[i] === 'string') {
+            if (
+              context.resHeader[i] &&
+              typeof context.resHeader[i] === 'string'
+            ) {
               cookie = parseCookie(context.resHeader[i]);
               if (cookie && typeof cookie === 'object') {
                 ctx.cookies.set(cookie.name, cookie.value, {
@@ -339,7 +380,10 @@ module.exports = async (ctx, next) => {
                   httpOnly: false
                 });
               }
-            } else if (context.resHeader[i] && Array.isArray(context.resHeader[i])) {
+            } else if (
+              context.resHeader[i] &&
+              Array.isArray(context.resHeader[i])
+            ) {
               context.resHeader[i].forEach(item => {
                 cookie = parseCookie(item);
                 if (cookie && typeof cookie === 'object') {
@@ -358,7 +402,7 @@ module.exports = async (ctx, next) => {
 
       ctx.status = context.httpCode;
       ctx.body = context.mockJson;
-      return;  
+      return;
     } catch (e) {
       yapi.commons.log(e, 'error');
       return (ctx.body = {
