@@ -1,7 +1,7 @@
 import './Home.scss';
 import React, { PureComponent as Component } from 'react';
 import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
+//import { Link } from 'react-router-dom';
 import { Row, Col, Button, Icon, Card } from 'antd';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
@@ -50,11 +50,11 @@ const HomeGuest = () => (
                 <span className="desc">旨在为开发、产品、测试人员提供更优雅的接口管理服务</span>
               </div>
               <div className="btn-group">
-                <Link to="/login">
+                {/* <Link to="/login">
                   <Button type="primary" className="btn-home btn-login">
                     登录 / 注册
                   </Button>
-                </Link>
+                </Link> */}
                 {ThirdLogin != null ? <ThirdLogin /> : null}
               </div>
             </div>
@@ -366,11 +366,11 @@ class Home extends Component {
             </div>
             <div className="tip-btns">
               <div className="btn-group">
-                <Link to="/login">
+                {/* <Link to="/login">
                   <Button type="primary" className="btn-home btn-login">
                     登录 / 注册
                   </Button>
-                </Link>
+                </Link> */}
                 <Button className="btn-home btn-home-normal">
                   <a target="_blank" rel="noopener noreferrer" href="https://yapi.ymfe.org">
                     使用文档

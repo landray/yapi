@@ -78,6 +78,7 @@
     "tslib": "1.8.0",
     "underscore": "1.8.3",
     "url": "0.11.0",
+    "yapi-plugin-gitlab-oauth2": "git+https://github.com/landray/yapi-plugin-gitlab-oauth2.git",
     "yapi-plugin-qsso": "^1.1.0"
   },
   "devDependencies": {
